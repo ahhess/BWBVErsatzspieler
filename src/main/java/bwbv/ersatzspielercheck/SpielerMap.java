@@ -16,7 +16,7 @@ public class SpielerMap extends HashMap<String, Spieler> {
 	
 	private HashMap<String, Verein> vereine;
 
-	public void load(String filename, String kzVrRr) throws IOException {
+	public void load(String filename, String kzVrRr, String charSet) throws IOException {
 		logger.info("lade Spieler (" + kzVrRr + ") von " + filename);
 
 		CSVLoader loader;
@@ -74,7 +74,7 @@ public class SpielerMap extends HashMap<String, Spieler> {
 				}
 			};
 		}
-		loader.load(filename, 1);
+		loader.load(filename, 1, charSet);
 	}
 
 	private Spieler getSpieler(String nr, String passnr, String nachname, String vorname) {

@@ -1,7 +1,11 @@
 package bwbv.ersatzspielercheck;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.logging.Logger;
 
 public abstract class CSVLoader {
@@ -9,10 +13,23 @@ public abstract class CSVLoader {
 	private static Logger logger = Logger.getLogger(CSVLoader.class.getName());
 
 	void load(String filename, int skipRows) throws IOException {
+		load(filename, skipRows, null);
+	}
+	
+	void load(String filename, int skipRows, String charSet) throws IOException {
 		logger.info("lade "+filename);
 		int anz = 0;
 		int j = skipRows - 1;
-		BufferedReader br = new BufferedReader(new FileReader(filename));
+		
+//		Reader r = new InputStreamReader(new FileInputStream(filename), "UTF8");		 
+		FileInputStream is = new FileInputStream(filename);
+		Reader r;
+		if (charSet == null || charSet.length() == 0)
+			r = new InputStreamReader(is);
+		else
+			r = new InputStreamReader(is, charSet);
+		BufferedReader br = new BufferedReader(r);
+		
 		String line = br.readLine();
 		for (int i = 0; line != null; i++) {
 			// Ueberschriftszeile(n) ueberspringen
@@ -22,7 +39,7 @@ public abstract class CSVLoader {
 			}
 			line = br.readLine();
 		}
-		logger.info("" + anz + " Zeilen geladen.");
+		logger.info(String.format("%d Zeilen geladen.", anz));
 	}
 
 	abstract void processRow(String[] token);
