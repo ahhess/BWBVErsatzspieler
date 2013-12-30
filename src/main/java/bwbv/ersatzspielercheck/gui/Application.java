@@ -28,8 +28,7 @@ public class Application extends javax.swing.JFrame {
 
 	private static final String SPT[] = { "SpT1", "SpT2", "SpT3", "SpT4",
 			"SpT4a", "SpT5", "SpT6", "SpT7", "SpT8", "SpT8a" };
-	private static final Logger logger = Logger.getLogger(Application.class
-			.getName());
+	private static Logger logger = null;
 	private static String cfg = "../bwbvErsatzspieler/data/ErsatzspielerCheck.properties";
 
 	private ErsatzspielerCheck ec;
@@ -40,8 +39,10 @@ public class Application extends javax.swing.JFrame {
 	private Verein vereinSelected;
 
 	public Application() throws Exception {
+		logger = Logger.getLogger(Application.class.getName());
 		ec = new ErsatzspielerCheck();
 		initComponents();
+		setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 		performEcInit(cfg);
 		performEcCheck();
 		configFilename.setText(cfg);
@@ -758,9 +759,9 @@ public class Application extends javax.swing.JFrame {
 		if (args.length > 0)
 			cfg = args[0];
 
-		if (System.getProperty("java.util.logging.properties") == null)
-			System.setProperty("java.util.logging.properties",
-					"logging.properties");
+//		if (System.getProperty("java.util.logging.properties") == null)
+//			System.setProperty("java.util.logging.properties",
+//					"logging.properties");
 
 		/*
 		 * Set the Nimbus look and feel

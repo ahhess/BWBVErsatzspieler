@@ -33,6 +33,7 @@ public class ErsatzspielerCheck {
 	private int EINSATZTERMIN = 8;
 	private int EINSATZTERMINURSPR = 9;
 	private int EINSATZVR = 6;
+	private int EINSATZDISZ = 28;
 
 	private Properties config = new Properties();
 	private Properties spieltage = new Properties();
@@ -78,6 +79,7 @@ public class ErsatzspielerCheck {
 		EINSATZTERMIN = getNumericConfigProp("EINSATZTERMIN", EINSATZTERMIN);
 		EINSATZTERMINURSPR = getNumericConfigProp("EINSATZTERMINURSPR", EINSATZTERMINURSPR);
 		EINSATZVR = getNumericConfigProp("EINSATZVR", EINSATZVR);
+		EINSATZDISZ = getNumericConfigProp("EINSATZDISZ", EINSATZDISZ);
 
 		loadSpieltage();
 		loadVRL();
@@ -99,7 +101,7 @@ public class ErsatzspielerCheck {
 		spielerMap.load(filename, "V", config.getProperty("vrlVrFile.charset"));
 		if ("R".equals(config.getProperty("kzVrRr"))) {
 			filename = config.getProperty("vrlRrFile");
-			spielerMap.load(filename, "R", config.getProperty("vrlRrFile"));
+			spielerMap.load(filename, "R", config.getProperty("vrlRrFile.charset"));
 		}
 	}
 
@@ -156,46 +158,48 @@ public class ErsatzspielerCheck {
 
 	private void getEinsatz(String[] token, int iSpielernr, int iVereinsnr, int iMannschaftsnr) {
 		String spielernr = token[iSpielernr];
-		if (spielernr != null && !"".equals(spielernr) && !IGNORESPNR1.equals(spielernr)
-				&& !IGNORESPNR2.equals(spielernr) && !spielernr.startsWith(IGNORESPNR3)) {
-			Spieler spieler = spielerMap.get(spielernr);
-			if (spieler == null) {
-				logger.warning("Unbekannte Spielernr <" + spielernr + "> Name: " + token[iSpielernr + 3] + ", "
-						+ token[iSpielernr + 4] + " Mannschaft: " + token[iVereinsnr + 1] + " " + token[iMannschaftsnr]);
-			}
-			if (spieler != null) {
-				// TODO Vereinswechsel zur Rueckrunde beruecksichtigen!?
+		if (spielernr != null && !"".equals(spielernr)) {
+			// leere spielernr ist bei Einzeln normal --> ignorieren
 
-				// Einsatz dem Spieler zuordnen
-				Einsatz einsatz = new Einsatz();
-				int mannschaft = Integer.parseInt(token[iMannschaftsnr]);
-				einsatz.setMannschaft(mannschaft);
-				// einsatz.setDisz(token[28]);
-				String ursprTermin = token[EINSATZTERMINURSPR];
-				if (ursprTermin != null && !"".equals(ursprTermin)) {
-					einsatz.setDatum(ursprTermin);
+			if (IGNORESPNR1.equals(spielernr) || IGNORESPNR2.equals(spielernr) || spielernr.startsWith(IGNORESPNR3)) {
+				logger.finer("spielernr ignoriert: " + spielernr);
+			} else {
+				Spieler spieler = spielerMap.get(spielernr);
+				if (spieler == null) {
+					logger.warning("Unbekannte Spielernr <" + spielernr + "> Name: " + token[iSpielernr + 3] + ", "
+							+ token[iSpielernr + 4] + " Mannschaft: " + token[iVereinsnr + 1] + " " + token[iMannschaftsnr]);
 				} else {
-					einsatz.setDatum(token[EINSATZTERMIN]);
-				}
-				einsatz.setSpieltag(getSpieltagFromDatum(einsatz.getDatum()));
-				addEinsatz2Spieler(spieler, einsatz);
-
-				// Spieler in hoeherer Mannschaft als Stammmannschaft
-				// eingesetzt?
-				if ("VR".equals(token[EINSATZVR])) {
-					if (mannschaft < spieler.getStammMannschaftVR()) {
-						ersatzspielerMap.put(spielernr, spieler);
-						spieler.getVereinVR().getErsatzspielerMap().put(spielernr, spieler);
+					// TODO Vereinswechsel zur Rueckrunde beruecksichtigen!?
+	
+					// Einsatz dem Spieler zuordnen
+					Einsatz einsatz = new Einsatz();
+					int mannschaft = Integer.parseInt(token[iMannschaftsnr]);
+					einsatz.setMannschaft(mannschaft);
+					einsatz.setDisz(token[28]);
+					String ursprTermin = token[EINSATZTERMINURSPR];
+					if (ursprTermin != null && !"".equals(ursprTermin)) {
+						einsatz.setDatum(ursprTermin);
+					} else {
+						einsatz.setDatum(token[EINSATZTERMIN]);
 					}
-				} else {
-					if (mannschaft < spieler.getStammMannschaftRR()) {
-						ersatzspielerMap.put(spielernr, spieler);
-						spieler.getVereinRR().getErsatzspielerMap().put(spielernr, spieler);
+					einsatz.setSpieltag(getSpieltagFromDatum(einsatz.getDatum()));
+					addEinsatz2Spieler(spieler, einsatz);
+	
+					// Spieler in hoeherer Mannschaft als Stammmannschaft
+					// eingesetzt?
+					if ("VR".equals(token[EINSATZVR])) {
+						if (mannschaft < spieler.getStammMannschaftVR()) {
+							ersatzspielerMap.put(spielernr, spieler);
+							spieler.getVereinVR().getErsatzspielerMap().put(spielernr, spieler);
+						}
+					} else {
+						if (mannschaft < spieler.getStammMannschaftRR()) {
+							ersatzspielerMap.put(spielernr, spieler);
+							spieler.getVereinRR().getErsatzspielerMap().put(spielernr, spieler);
+						}
 					}
 				}
 			}
-		} else {
-			logger.fine("spielernr ignoriert: " + spielernr);
 		}
 	}
 

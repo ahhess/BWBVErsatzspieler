@@ -81,7 +81,7 @@ public class SpielerMap extends HashMap<String, Spieler> {
 		Spieler spieler = get(nr);
 		if(spieler == null){
 			spieler = new Spieler(nr, passnr, nachname, vorname);
-			logger.finer("Spieler: "+spieler.toString());
+			logger.finest("Spieler: "+spieler.toString());
 		}
 		return spieler;
 	}
