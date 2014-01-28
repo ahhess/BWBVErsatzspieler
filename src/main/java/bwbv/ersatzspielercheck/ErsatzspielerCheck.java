@@ -273,17 +273,21 @@ public class ErsatzspielerCheck {
 							spieler.getVereinVR().getFalschspieler().add(spieler);
 						}
 					}
-					mannschaftszaehler[m]++;
-					if (mannschaftszaehler[m] >= 4 && m < maxMannschaft) {
-						// logger.info("festgespielt: " + spieler);
-						maxMannschaft = m;
-						festgespielt.add(spieler);
-						if (spt > 4) {
-							if (spieler.getVereinRR() != null) {
-								spieler.getVereinRR().getFestgespielt().add(spieler);
+					// alle Mannschaften von Einsatzmannschaft bis Stammmannschaft inkrementieren
+					for (int i = m; i < maxMannschaft; i++) {						
+						mannschaftszaehler[i]++;
+						if (mannschaftszaehler[i] >= 4) {
+							logger.fine("festgespielt: " + spieler);
+							maxMannschaft = i;
+							festgespielt.add(spieler);
+							if (spt > 4) {
+								if (spieler.getVereinRR() != null) {
+									spieler.getVereinRR().getFestgespielt().add(spieler);
+								}
+							} else if (spieler.getVereinVR() != null) {
+								spieler.getVereinVR().getFestgespielt().add(spieler);
 							}
-						} else if (spieler.getVereinVR() != null) {
-							spieler.getVereinVR().getFestgespielt().add(spieler);
+							break;
 						}
 					}
 				}
