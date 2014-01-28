@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -541,16 +542,24 @@ public class Application extends javax.swing.JFrame {
 
 	private void showSpieltage() {
 		if (ec != null && ec.getSpieltage() != null) {
-			int size = ec.getSpieltage().size();
-			Object[][] spieltage = new String[size][2];
-			int i = 0;
+			// Spieltage nach Spieltagsnr sortieren
+			// (zusaetzl. nach Datumsstring wegen Eindeutigkeit in Treemap)
+			TreeMap<String, Entry<Object, Object>> treemap = new TreeMap<String, Entry<Object, Object>>();
 			for (Map.Entry<Object, Object> entry : ec.getSpieltage().entrySet()) {
-				spieltage[i][0] = entry.getKey();
-				spieltage[i][1] = entry.getValue();
+				try {
+					treemap.put(String.format("%1$02d%2$s", Integer.parseInt((String) entry.getValue()), (String) entry.getKey()), entry);
+				} catch (Exception e) {
+					treemap.put(entry.getValue().toString(), entry);
+				}
+			}
+			Object[][] spieltage = new String[treemap.size()][2];
+			int i = 0;
+			for (Entry<Object, Object> entry : treemap.values()) {
+				spieltage[i][0] = entry.getValue(); // SpT-Nr
+				spieltage[i][1] = entry.getKey(); // Datum
 				i++;
 			}
-			spieltagModel = new DefaultTableModel(spieltage, new String[] {
-					"Datum", "SpT Nr." });
+			spieltagModel = new DefaultTableModel(spieltage, new String[] { "SpT Nr.", "Datum" });
 			spieltagTable.setModel(spieltagModel);
 		}
 	}
@@ -620,14 +629,14 @@ public class Application extends javax.swing.JFrame {
         protected List<Spieler> list = null;
 
 		private void setSortedSpielerList(Collection<Spieler> spielerList) {
-			final String keyformat = "%1$s%2$02d";
+			final String keyformat = "%1$s%2$03d%3$s";
 			TreeMap<String, Spieler> treeMap = new TreeMap<String, Spieler>();
 			for (Spieler spieler : spielerList) {
 				String key;
 				if (spieler.getRangRR() > 0 ) {
-					key = String.format(keyformat, getVereinNameKurz(spieler.getVereinRR()), spieler.getRangRR());
+					key = String.format(keyformat, getVereinNameKurz(spieler.getVereinRR()), spieler.getRangRR(), spieler.getNr());
 				} else {
-					key = String.format(keyformat, getVereinNameKurz(spieler.getVereinVR()), spieler.getRangVR());					
+					key = String.format(keyformat, getVereinNameKurz(spieler.getVereinVR()), spieler.getRangVR(), spieler.getNr());					
 				}
 				treeMap.put(key, spieler);
 			}
