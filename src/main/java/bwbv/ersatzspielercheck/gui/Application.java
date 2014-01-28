@@ -555,6 +555,11 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
+	private String getVereinNameKurz(Verein verein) {
+		String[] namen = verein.getName().split(" ");
+		return namen[namen.length-1];
+	}
+
 	private class VereinModel extends AbstractTableModel {
 
 		List<Verein> list = null;
@@ -563,8 +568,7 @@ public class Application extends javax.swing.JFrame {
 			// vereine nach kurzname sortieren
 			TreeMap<String, Verein> treeMap = new TreeMap<String, Verein>();
 			for (Verein verein : vereineMap.values()) {
-				String[] namen = verein.getName().split(" ");
-				String nameKurz = namen[namen.length-1]; 
+				String nameKurz = getVereinNameKurz(verein); 
 				treeMap.put(nameKurz, verein);
 			}
 			list = new ArrayList<Verein>(treeMap.values());			
@@ -616,9 +620,15 @@ public class Application extends javax.swing.JFrame {
         protected List<Spieler> list = null;
 
 		private void setSortedSpielerList(Collection<Spieler> spielerList) {
-			TreeMap<Integer, Spieler> treeMap = new TreeMap<Integer, Spieler>();
+			final String keyformat = "%1$s%2$02d";
+			TreeMap<String, Spieler> treeMap = new TreeMap<String, Spieler>();
 			for (Spieler spieler : spielerList) {
-				int key = spieler.getRangRR() > 0 ? spieler.getRangRR() : spieler.getRangVR();
+				String key;
+				if (spieler.getRangRR() > 0 ) {
+					key = String.format(keyformat, getVereinNameKurz(spieler.getVereinRR()), spieler.getRangRR());
+				} else {
+					key = String.format(keyformat, getVereinNameKurz(spieler.getVereinVR()), spieler.getRangVR());					
+				}
 				treeMap.put(key, spieler);
 			}
 			list = new ArrayList<Spieler>(treeMap.values());
@@ -626,22 +636,10 @@ public class Application extends javax.swing.JFrame {
 		
 		public void setSpielerList(List<Spieler> spielerList) {
 			setSortedSpielerList(spielerList);
-//			TreeMap<Integer, Spieler> treeMap = new TreeMap<Integer, Spieler>();
-//			for (Spieler spieler : spielerList) {
-//				int key = spieler.getRangRR() > 0 ? spieler.getRangRR() : spieler.getRangVR();
-//				treeMap.put(key, spieler);
-//			}
-//			list = new ArrayList<Spieler>(treeMap.values());
 		}
 
 		public void setSpielerMap(SpielerMap spielerMap) {
 			setSortedSpielerList(spielerMap.values());
-//			TreeMap<Integer, Spieler> treeMap = new TreeMap<Integer, Spieler>();
-//			for (Spieler spieler : spielerMap.values()) {
-//				int key = spieler.getRangRR() > 0 ? spieler.getRangRR() : spieler.getRangVR();
-//				treeMap.put(key, spieler);
-//			}
-//			list = new ArrayList<Spieler>(treeMap.values());
 		}
 
 		@Override
