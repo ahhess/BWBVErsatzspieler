@@ -44,9 +44,13 @@ public class Application extends javax.swing.JFrame {
 		ec = new ErsatzspielerCheck();
 		initComponents();
 		setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
-		performEcInit(cfg);
-		performEcCheck();
-		configFilename.setText(cfg);
+		try {
+			performEcInit(cfg);
+			performEcCheck();
+			configFilename.setText(cfg);
+		} catch (Exception e) {
+			addMsg(e.toString());
+		}
 	}
 
 	/**
@@ -428,6 +432,7 @@ public class Application extends javax.swing.JFrame {
 	}// GEN-LAST:event_exitMenuItemActionPerformed
 
 	private void checkButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_checkButtonActionPerformed
+		msgTextPane.setText("");
 		performEcCheck();
 	}// GEN-LAST:event_checkButtonActionPerformed
 
@@ -439,7 +444,12 @@ public class Application extends javax.swing.JFrame {
 	}// GEN-LAST:event_browseButtonActionPerformed
 
 	private void configButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_configButtonActionPerformed
-		performEcInit(configFilename.getText());
+		try {
+			msgTextPane.setText("");
+			performEcInit(configFilename.getText());
+		} catch (Exception e) {
+			addMsg(e.toString());
+		}
 	}// GEN-LAST:event_configButtonActionPerformed
 
 	private void rbSpielerActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_rbSpielerActionPerformed
@@ -472,13 +482,9 @@ public class Application extends javax.swing.JFrame {
 
 	// /////////////////////////////////////////
 
-	private void performEcInit(String configFilename) {
-		try {
-			ec.init(new String[] { configFilename });
-			showSpieltage();
-		} catch (Exception ex) {
-			addMsg(ex.toString());
-		}
+	private void performEcInit(String configFilename)  throws Exception {
+		ec.init(new String[] { configFilename });
+		showSpieltage();
 	}
 
 	private void performEcCheck() {
@@ -566,7 +572,7 @@ public class Application extends javax.swing.JFrame {
 
 	private String getVereinNameKurz(Verein verein) {
 		String[] namen = verein.getName().split(" ");
-		return namen[namen.length-1];
+		return namen[namen.length-1] + namen[0];
 	}
 
 	private class VereinModel extends AbstractTableModel {
