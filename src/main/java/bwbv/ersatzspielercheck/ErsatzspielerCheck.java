@@ -37,6 +37,7 @@ public class ErsatzspielerCheck {
 
 	private Properties config = new Properties();
 	private Properties spieltage = new Properties();
+	private Properties spieltageUnbekannt = new Properties();
 	private SpielerMap spielerMap = new SpielerMap();
 	private SpielerMap ersatzspielerMap = new SpielerMap();
 	private List<Spieler> festgespielt = new ArrayList<Spieler>();
@@ -229,8 +230,9 @@ public class ErsatzspielerCheck {
 	private String getSpieltagFromDatum(String datum) {
 		String spieltagDatum = datum.substring(0, 10);
 		String spieltag = spieltage.getProperty(spieltagDatum);
-		if (spieltag == null) {
+		if (spieltag == null && spieltageUnbekannt.getProperty(spieltagDatum)== null) {
 			logger.warning("unbekannter SpT:" + spieltagDatum);
+			spieltageUnbekannt.setProperty(spieltagDatum, "0");
 		}
 		return spieltag;
 	}
@@ -351,6 +353,6 @@ public class ErsatzspielerCheck {
 	}
 
 	public Properties getSpieltage() {
-		return spieltage;
+		return spieltageUnbekannt;
 	}
 }

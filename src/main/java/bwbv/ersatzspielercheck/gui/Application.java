@@ -326,7 +326,7 @@ public class Application extends javax.swing.JFrame {
         jScrollPaneSpieltage.setViewportView(spieltagTable);
         spieltagTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 
-        jTabbedPane1.addTab("Spieltage", jScrollPaneSpieltage);
+        jTabbedPane1.addTab("Unbekannte Spieltage", jScrollPaneSpieltage);
 
         msgTextPane.setEditable(false);
         msgTextPane.setText(msgBuffer);
@@ -484,7 +484,6 @@ public class Application extends javax.swing.JFrame {
 
 	private void performEcInit(String configFilename)  throws Exception {
 		ec.init(new String[] { configFilename });
-		showSpieltage();
 	}
 
 	private void performEcCheck() {
@@ -493,6 +492,7 @@ public class Application extends javax.swing.JFrame {
 			ec.checkErsatzspieler();
 			showVereine();
 			showSpieler();
+			showSpieltage();
 		} catch (Exception ex) {
 			Logger.getLogger(Application.class.getName()).log(Level.SEVERE,
 					null, ex);
