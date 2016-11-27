@@ -18,7 +18,7 @@ public class Spieler implements Comparable<String> {
     private int stammMannschaftRR = 0;
     private Verein vereinVR;
     private Verein vereinRR;
-    private int[][] mannschaftseinsatz = new int[10][2];
+    private int[][] mannschaftseinsatz = new int[10][3];
     private Map<String, List<Einsatz>> spieltagsEinsaetze = new HashMap<String, List<Einsatz>>();
 
     public Spieler(String nr, String passnr, String nachname, String vorname) {
