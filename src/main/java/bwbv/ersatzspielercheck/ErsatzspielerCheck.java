@@ -87,6 +87,10 @@ public class ErsatzspielerCheck {
 	}
 
 	private int getNumericConfigProp(String propName, int ret) {
+		return getNumericConfigProp(config, propName, ret);
+	}
+
+	public static int getNumericConfigProp(Properties config, String propName, int ret) {
 		String s = config.getProperty(propName);
 		try {
 			if (s != null)
@@ -98,12 +102,7 @@ public class ErsatzspielerCheck {
 	}
 
 	public void loadVRL() throws IOException {
-		String filename = config.getProperty("vrlVrFile");
-		spielerMap.load(filename, "V", config.getProperty("vrlVrFile.charset"));
-		if ("R".equals(config.getProperty("kzVrRr"))) {
-			filename = config.getProperty("vrlRrFile");
-			spielerMap.load(filename, "R", config.getProperty("vrlRrFile.charset"));
-		}
+		spielerMap.load(config);
 	}
 
 	public void loadSpieltage() throws IOException, FileNotFoundException {
@@ -154,7 +153,13 @@ public class ErsatzspielerCheck {
 				}
 			}
 		};
-		ergebnisLoader.load(config.getProperty("infile"), 1, config.getProperty("infile.charset"));
+		int skipRows = 1;
+		try {
+			skipRows = new Integer(config.getProperty("infile.skipRows", "1"));
+		} catch (NumberFormatException e) {
+		}
+		ergebnisLoader.load(config.getProperty("infile"), skipRows, 
+				config.getProperty("infile.charset"));
 	}
 
 	private void getEinsatz(String[] token, int iSpielernr, int iVereinsnr, int iMannschaftsnr) {

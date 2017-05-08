@@ -17,7 +17,7 @@ public abstract class CSVLoader {
 	}
 	
 	void load(String filename, int skipRows, String charSet) throws IOException {
-		logger.info("lade "+filename);
+		logger.info("lade " + filename + " als " + charSet);
 		int anz = 0;
 		int j = skipRows - 1;
 		
