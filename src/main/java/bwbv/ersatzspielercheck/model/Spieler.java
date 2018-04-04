@@ -12,6 +12,7 @@ public class Spieler implements Comparable<String> {
     private String passnr;
     private String nachname;
     private String vorname;
+    private String geschlecht;
     private int rangVR = 0;
     private int rangRR = 0;
     private int stammMannschaftVR = 0;
@@ -21,12 +22,13 @@ public class Spieler implements Comparable<String> {
     private int[][] mannschaftseinsatz = new int[10][3];
     private Map<String, List<Einsatz>> spieltagsEinsaetze = new HashMap<String, List<Einsatz>>();
 
-    public Spieler(String nr, String passnr, String nachname, String vorname) {
+    public Spieler(String nr, String passnr, String nachname, String vorname, String geschlecht) {
         super();
         this.nr = nr;
         this.passnr = passnr;
         this.nachname = nachname;
         this.vorname = vorname;
+        this.geschlecht = geschlecht;
     }
 
     @Override
@@ -158,5 +160,13 @@ public class Spieler implements Comparable<String> {
         } else 
             return super.equals(obj);
     }
+
+	public String getGeschlecht() {
+		return geschlecht;
+	}
+
+	public void setGeschlecht(String geschlecht) {
+		this.geschlecht = geschlecht;
+	}
 
 }

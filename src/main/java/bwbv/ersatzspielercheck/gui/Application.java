@@ -635,14 +635,14 @@ public class Application extends javax.swing.JFrame {
         protected List<Spieler> list = null;
 
 		private void setSortedSpielerList(Collection<Spieler> spielerList) {
-			final String keyformat = "%1$s%2$03d%3$s";
+			final String keyformat = "%1$s%2$s%3$03d%4$s";
 			TreeMap<String, Spieler> treeMap = new TreeMap<String, Spieler>();
 			for (Spieler spieler : spielerList) {
 				String key;
 				if (spieler.getRangRR() > 0 ) {
-					key = String.format(keyformat, getVereinNameKurz(spieler.getVereinRR()), spieler.getRangRR(), spieler.getNr());
+					key = String.format(keyformat, getVereinNameKurz(spieler.getVereinRR()), spieler.getGeschlecht(), spieler.getRangRR(), spieler.getNr());
 				} else {
-					key = String.format(keyformat, getVereinNameKurz(spieler.getVereinVR()), spieler.getRangVR(), spieler.getNr());					
+					key = String.format(keyformat, getVereinNameKurz(spieler.getVereinVR()), spieler.getGeschlecht(), spieler.getRangVR(), spieler.getNr());					
 				}
 				treeMap.put(key, spieler);
 			}

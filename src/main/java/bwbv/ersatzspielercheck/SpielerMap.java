@@ -39,11 +39,12 @@ public class SpielerMap extends HashMap<String, Spieler> {
 			final int iVerein = ErsatzspielerCheck.getNumericConfigProp(conf, "VRLVR.VereinName", 3);
 			final int iRegion = ErsatzspielerCheck.getNumericConfigProp(conf, "VRLVR.Region", 1);
 			final int iMannschaft = ErsatzspielerCheck.getNumericConfigProp(conf, "VRLVR.SpielerMannschaftNummer", 13);
+			final int iGeschlecht = ErsatzspielerCheck.getNumericConfigProp(conf, "VRLVR.Geschlecht", 27);
 			
 			CSVLoader loader = new CSVLoader() {
 				@Override
 				void processRow(String[] field) {
-					Spieler spieler = getSpieler(field[iRlNr], field[iSpielerNr], field[iNachname], field[iVorname]);
+					Spieler spieler = getSpieler(field[iRlNr], field[iSpielerNr], field[iNachname], field[iVorname], field[iGeschlecht]);
 					Verein verein = getVerein(field[iVNr], field[iVerein], field[iRegion]);					
 					try {
 						spieler.setStammMannschaftVR(Integer.parseInt(field[iMannschaft]));                                                
@@ -77,6 +78,7 @@ public class SpielerMap extends HashMap<String, Spieler> {
 		final int iSpielerNr = ErsatzspielerCheck.getNumericConfigProp(conf, "VRLRR.InterneNr", 23);
 		final int iNachname = ErsatzspielerCheck.getNumericConfigProp(conf, "VRLRR.Nachname", 26);
 		final int iVorname = ErsatzspielerCheck.getNumericConfigProp(conf, "VRLRR.Vorname", 27);
+		final int iGeschlecht = ErsatzspielerCheck.getNumericConfigProp(conf, "VRLRR.Geschlecht", 31);
 
 		final int iMannschaftVR = ErsatzspielerCheck.getNumericConfigProp(conf, "VRLRR.SpielerMannschaftNummerVR", 13);
 		final int iRlNrVR = ErsatzspielerCheck.getNumericConfigProp(conf, "VRLRR.SpielerRangEinzelVR", 17);
@@ -84,7 +86,7 @@ public class SpielerMap extends HashMap<String, Spieler> {
 		CSVLoader loader = new CSVLoader() {
 			@Override
 			void processRow(String[] field) {
-				Spieler spieler = getSpieler(field[iRlNr], field[iSpielerNr], field[iNachname], field[iVorname]);
+				Spieler spieler = getSpieler(field[iRlNr], field[iSpielerNr], field[iNachname], field[iVorname], field[iGeschlecht]);
 				Verein verein = getVerein(field[iVNr], field[iVerein], field[iRegion]);					
 				try {
 					spieler.setStammMannschaftVR(Integer.parseInt(field[iMannschaftVR]));
@@ -115,10 +117,10 @@ public class SpielerMap extends HashMap<String, Spieler> {
 		loader.load(filename, skipRows, charSet);
 	}
 
-	private Spieler getSpieler(String rlnr, String passnr, String nachname, String vorname) {
+	private Spieler getSpieler(String rlnr, String passnr, String nachname, String vorname, String geschlecht) {
 		Spieler spieler = get(passnr);
 		if(spieler == null){
-			spieler = new Spieler(rlnr, passnr, nachname, vorname);
+			spieler = new Spieler(rlnr, passnr, nachname, vorname, geschlecht);
 			logger.finest("neuer Spieler: "+spieler.toString());
 		}
 		return spieler;
