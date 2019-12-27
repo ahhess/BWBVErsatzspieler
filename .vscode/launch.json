@@ -1,0 +1,13 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Application",
+            "request": "launch",
+            "projectName": "ersatzspieler.check",
+            "mainClass": "bwbv.ersatzspielercheck.gui.Application",
+            "args": "./etc/ErsatzspielerCheck.properties",
+            "vmArgs": "-Djava.util.logging.config.file=./etc/logging.properties"
+        }
+    ]
+}

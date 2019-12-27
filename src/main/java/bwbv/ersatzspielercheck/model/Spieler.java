@@ -19,8 +19,20 @@ public class Spieler implements Comparable<String> {
     private int stammMannschaftRR = 0;
     private Verein vereinVR;
     private Verein vereinRR;
-    private int[][] mannschaftseinsatz = new int[10][3];
+    
+    /** 
+     * SpieltagsEinsaetze
+     * key: Spieltagsdatum
+     */
     private Map<String, List<Einsatz>> spieltagsEinsaetze = new HashMap<String, List<Einsatz>>();
+
+    /**
+     * Mannschaftseinsaetze: Kurzzusammenfassung der Spielereinsaetze in Mannschaft x pro SpT und VR/RR/effektiv nach SpT.
+     * 1. index: SpT 1-10 (5=4a, 10=8a; 0=unbenutzt)
+     * 2. Index: 0=VR, 1=RR, 3=effektiv (= ggfs. festgespielt) in Mannschaft nach SpT
+     */
+    private int[][] mannschaftseinsatz = new int[10][3];
+
 
     public Spieler(String nr, String passnr, String nachname, String vorname, String geschlecht) {
         super();
@@ -34,6 +46,12 @@ public class Spieler implements Comparable<String> {
     @Override
     public String toString() {
         return getGanzerName() + " (" + nr + ", " + rangVR + "/" + rangRR + ")";
+    }
+
+    public String mannschaftseinsatzToString(int spt) {
+        return "" + mannschaftseinsatz[spt][0]
+            + "-" + mannschaftseinsatz[spt][1]
+            + " = " + mannschaftseinsatz[spt][2];
     }
 
     public String toXML() {

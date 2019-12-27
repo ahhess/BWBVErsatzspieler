@@ -17,23 +17,11 @@ public class ErsatzspielerCheck {
 	private static Logger logger = Logger.getLogger(ErsatzspielerCheck.class.getName());
 
 	private String confFilename = "ErsatzspielerCheck.properties";
-	
+
 	// constants from properties:
 	private String IGNORESPNR1 = "0";
 	private String IGNORESPNR2 = "00000000";
 	private String IGNORESPNR3 = "NU-";
-	private int EINSATZSPNRH1 = 29;
-	private int EINSATZSPNRH2 = 34;
-	private int EINSATZSPNRG1 = 39;
-	private int EINSATZSPNRG2 = 44;
-	private int EINSATZVNRH = 12;
-	private int EINSATZVNRG = 17;
-	private int EINSATZMNRH = 15;
-	private int EINSATZMNRG = 20;
-	private int EINSATZTERMIN = 8;
-	private int EINSATZTERMINURSPR = 9;
-	private int EINSATZVR = 6;
-	private int EINSATZDISZ = 28;
 
 	private Properties config = new Properties();
 	private Properties spieltage = new Properties();
@@ -69,37 +57,20 @@ public class ErsatzspielerCheck {
 		IGNORESPNR1 = config.getProperty("IGNORESPNR1", IGNORESPNR1);
 		IGNORESPNR2 = config.getProperty("IGNORESPNR2", IGNORESPNR2);
 		IGNORESPNR3 = config.getProperty("IGNORESPNR3", IGNORESPNR3);
-		EINSATZVNRH = getNumericConfigProp("EINSATZVNRH", EINSATZVNRH);
-		EINSATZVNRG = getNumericConfigProp("EINSATZVNRG", EINSATZVNRG);
-		EINSATZMNRH = getNumericConfigProp("EINSATZMNRH", EINSATZMNRH);
-		EINSATZMNRG = getNumericConfigProp("EINSATZMNRG", EINSATZMNRG);
-		EINSATZSPNRH1 = getNumericConfigProp("EINSATZSPNRH1", EINSATZSPNRH1);
-		EINSATZSPNRH2 = getNumericConfigProp("EINSATZSPNRH2", EINSATZSPNRH2);
-		EINSATZSPNRG1 = getNumericConfigProp("EINSATZSPNRG1", EINSATZSPNRG1);
-		EINSATZSPNRG2 = getNumericConfigProp("EINSATZSPNRG2", EINSATZSPNRG2);
-		EINSATZTERMIN = getNumericConfigProp("EINSATZTERMIN", EINSATZTERMIN);
-		EINSATZTERMINURSPR = getNumericConfigProp("EINSATZTERMINURSPR", EINSATZTERMINURSPR);
-		EINSATZVR = getNumericConfigProp("EINSATZVR", EINSATZVR);
-		EINSATZDISZ = getNumericConfigProp("EINSATZDISZ", EINSATZDISZ);
 
 		loadSpieltage();
 		loadVRL();
 	}
 
-	private int getNumericConfigProp(String propName, int ret) {
-		return getNumericConfigProp(config, propName, ret);
-	}
-
-	public static int getNumericConfigProp(Properties config, String propName, int ret) {
-		String s = config.getProperty(propName);
-		try {
-			if (s != null)
-				ret = Integer.parseInt(s);
-		} catch (Exception e) {
-			logger.warning(String.format("invalid numeric property: %s: %s", propName, s));
-		}
-		return ret;
-	}
+	public static int getNumericConfigProp(Properties config, String propName, int def) {
+        String s = config.getProperty(propName);
+        try {
+            if (s != null)
+                return Integer.parseInt(s);
+        } catch (Exception e) {
+        }
+        return def;
+    }
 
 	public void loadVRL() throws IOException {
 		spielerMap.load(config);
@@ -139,69 +110,52 @@ public class ErsatzspielerCheck {
 
 	public void processEinsaetze() throws IOException {
 		logger.info("start");
-		CSVLoader ergebnisLoader = new CSVLoader() {
+		ErgebnisLoader ergebnisLoader = new ErgebnisLoader(config) {
 			@Override
-			void processRow(String[] token) {
-				try {
-					getEinsatz(token, EINSATZSPNRH1, EINSATZVNRH, EINSATZMNRH);
-					getEinsatz(token, EINSATZSPNRH2, EINSATZVNRH, EINSATZMNRH);
-					getEinsatz(token, EINSATZSPNRG1, EINSATZVNRG, EINSATZMNRG);
-					getEinsatz(token, EINSATZSPNRG2, EINSATZVNRG, EINSATZMNRG);
-				} catch (RuntimeException e) {
-					e.printStackTrace();
-					throw e;
+			void processRow(String[] cols) {
+				ErgebnisRecord record = getErgebnisRecord(cols);
+				for (int i = 0; i < 4; i++) {
+					createEinsatz(record, i);
 				}
 			}
 		};
-		int skipRows = 1;
-		try {
-			skipRows = new Integer(config.getProperty("infile.skipRows", "1"));
-		} catch (NumberFormatException e) {
-		}
-		ergebnisLoader.load(config.getProperty("infile"), skipRows, 
+		ergebnisLoader.load(config.getProperty("infile"),
+				getNumericConfigProp(config, "infile.skipRows", 1),
 				config.getProperty("infile.charset"));
 	}
 
-	private void getEinsatz(String[] token, int iSpielernr, int iVereinsnr, int iMannschaftsnr) {
-		String spielernr = token[iSpielernr];
-		if (spielernr != null && !"".equals(spielernr)) {
+	private void createEinsatz(ErgebnisRecord spielerRec, int i) {
+		String spielerNr = spielerRec.spielerNr[i];
+		if (spielerNr != null && !"".equals(spielerNr)) {
 			// leere spielernr ist bei Einzeln normal --> ignorieren
-
-			if (IGNORESPNR1.equals(spielernr) || IGNORESPNR2.equals(spielernr) || spielernr.startsWith(IGNORESPNR3)) {
-				logger.finer("spielernr ignoriert: " + spielernr);
+			if (IGNORESPNR1.equals(spielerNr) || IGNORESPNR2.equals(spielerNr) || spielerNr.startsWith(IGNORESPNR3)) {
+				logger.finer("spielernr ignoriert: " + spielerNr);
 			} else {
-				Spieler spieler = spielerMap.get(spielernr);
+				Spieler spieler = spielerMap.get(spielerNr);
 				if (spieler == null) {
-					logger.warning("Unbekannte Spielernr <" + spielernr + "> Name: " + token[iSpielernr + 3] + ", "
-							+ token[iSpielernr + 4] + " Mannschaft: " + token[iVereinsnr + 1] + " " + token[iMannschaftsnr]);
+					logger.warning("Unbekannte Spielernr: " + spielerNr);
 				} else {
 					// TODO Vereinswechsel zur Rueckrunde beruecksichtigen!?
-	
+
 					// Einsatz dem Spieler zuordnen
 					Einsatz einsatz = new Einsatz();
-					int mannschaft = Integer.parseInt(token[iMannschaftsnr]);
-					einsatz.setMannschaft(mannschaft);
-					einsatz.setDisz(token[28]);
-					String ursprTermin = token[EINSATZTERMINURSPR];
-					if (ursprTermin != null && !"".equals(ursprTermin)) {
-						einsatz.setDatum(ursprTermin);
-					} else {
-						einsatz.setDatum(token[EINSATZTERMIN]);
-					}
+					einsatz.setMannschaft(Integer.parseInt(spielerRec.mannschaftNr[i]));
+					einsatz.setDisz(spielerRec.disziplin);
+					einsatz.setDatum(spielerRec.termin);
 					einsatz.setSpieltag(getSpieltagFromDatum(einsatz.getDatum()));
 					addEinsatz2Spieler(spieler, einsatz);
-	
+
 					// Spieler in hoeherer Mannschaft als Stammmannschaft
 					// eingesetzt?
-					if ("VR".equals(token[EINSATZVR])) {
-						if (mannschaft < spieler.getStammMannschaftVR()) {
-							ersatzspielerMap.put(spielernr, spieler);
-							spieler.getVereinVR().getErsatzspielerMap().put(spielernr, spieler);
+					if ("VR".equals(spielerRec.runde)) {
+						if (einsatz.getMannschaft() < spieler.getStammMannschaftVR()) {
+							ersatzspielerMap.put(spielerNr, spieler);
+							spieler.getVereinVR().getErsatzspielerMap().put(spielerNr, spieler);
 						}
 					} else {
-						if (mannschaft < spieler.getStammMannschaftRR()) {
-							ersatzspielerMap.put(spielernr, spieler);
-							spieler.getVereinRR().getErsatzspielerMap().put(spielernr, spieler);
+						if (einsatz.getMannschaft() < spieler.getStammMannschaftRR()) {
+							ersatzspielerMap.put(spielerNr, spieler);
+							spieler.getVereinRR().getErsatzspielerMap().put(spielerNr, spieler);
 						}
 					}
 				}
@@ -227,6 +181,11 @@ public class ErsatzspielerCheck {
 						spieler.getMannschaftseinsatz()[spTnr][1] = einsatz.getMannschaft();
 					}
 				}
+				if (spTnr < 6) {
+					spieler.getMannschaftseinsatz()[spTnr][2] = spieler.getStammMannschaftVR();
+				} else {
+					spieler.getMannschaftseinsatz()[spTnr][2] = spieler.getStammMannschaftRR();
+				}
 			}
 		}
 		spTEinsaetze.add(einsatz);
@@ -235,7 +194,7 @@ public class ErsatzspielerCheck {
 	private String getSpieltagFromDatum(String datum) {
 		String spieltagDatum = datum.substring(0, 10);
 		String spieltag = spieltage.getProperty(spieltagDatum);
-		if (spieltag == null && spieltageUnbekannt.getProperty(spieltagDatum)== null) {
+		if (spieltag == null && spieltageUnbekannt.getProperty(spieltagDatum) == null) {
 			logger.warning("unbekannter SpT:" + spieltagDatum);
 			spieltageUnbekannt.setProperty(spieltagDatum, "0");
 		}
@@ -281,11 +240,12 @@ public class ErsatzspielerCheck {
 						}
 					}
 					// alle Mannschaften von Einsatzmannschaft bis Stammmannschaft inkrementieren
-					for (int i = m; i < maxMannschaft; i++) {						
+					for (int i = m; i < maxMannschaft; i++) {
 						mannschaftszaehler[i]++;
 						if (mannschaftszaehler[i] >= 4) {
 							logger.fine("festgespielt: " + spieler);
 							maxMannschaft = i;
+							spieler.getMannschaftseinsatz()[spt][2] = maxMannschaft;
 							festgespielt.add(spieler);
 							if (spt > 4) {
 								if (spieler.getVereinRR() != null) {

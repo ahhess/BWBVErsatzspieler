@@ -716,9 +716,8 @@ public class Application extends javax.swing.JFrame {
 				return s.getStammMannschaftRR();
 			}
 			if (columnIndex < 16) {
-				return "" + s.getMannschaftseinsatz()[columnIndex - 6][0] + "-"
-						+ s.getMannschaftseinsatz()[columnIndex - 6][1];
-			}
+                return s.mannschaftseinsatzToString(columnIndex - 6);
+            }
 
 			return null;
 		}
