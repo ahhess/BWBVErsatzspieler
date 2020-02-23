@@ -664,7 +664,7 @@ public class Application extends javax.swing.JFrame {
 
 		@Override
 		public int getColumnCount() {
-			return 16;
+			return 17;
 		}
         
 		@Override
@@ -675,24 +675,26 @@ public class Application extends javax.swing.JFrame {
                 case 1:
                     return "Vorname";
                 case 2:
-                    return "Pos.VR";
+                    return "Lizenznr.";
                 case 3:
-                    return "Pos.RR";
+                    return "Pos.VR";
                 case 4:
-                    return "M.VR";
+                    return "Pos.RR";
                 case 5:
+                    return "M.VR";
+                case 6:
                     return "M.RR";
             }
-			return SPT[columnIndex - 6];
+			return SPT[columnIndex - 7];
 			// return "SpT" + String.valueOf(columnIndex - 5);
 		}
 
         public Class<?> getColumnClass(int columnIndex) {
             switch (columnIndex) {
-                case 2:
                 case 3:
                 case 4:
                 case 5:
+                case 6:
                     return Integer.class;
             }
             return String.class;
@@ -706,17 +708,19 @@ public class Application extends javax.swing.JFrame {
 				return s.getNachname();
 			case 1:
 				return s.getVorname();
-			case 2:
+            case 2:
+				return s.getPassnr();
+            case 3:
 				return s.getRangVR();
-			case 3:
-				return s.getRangRR();
 			case 4:
-				return s.getStammMannschaftVR();
+				return s.getRangRR();
 			case 5:
+				return s.getStammMannschaftVR();
+			case 6:
 				return s.getStammMannschaftRR();
 			}
-			if (columnIndex < 16) {
-                return s.mannschaftseinsatzToString(columnIndex - 6);
+			if (columnIndex < 17) {
+                return s.mannschaftseinsatzToString(columnIndex - 7);
             }
 
 			return null;
