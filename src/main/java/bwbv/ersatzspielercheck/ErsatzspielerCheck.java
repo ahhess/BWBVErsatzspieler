@@ -136,7 +136,7 @@ public class ErsatzspielerCheck {
 					logger.warning("Unbekannte Spielernr: " + spielerNr);
 				} else {
 					// TODO Vereinswechsel zur Rueckrunde beruecksichtigen!?
-
+		
 					// Einsatz dem Spieler zuordnen
 					Einsatz einsatz = new Einsatz();
 					einsatz.setMannschaft(Integer.parseInt(spielerRec.mannschaftNr[i]));
@@ -181,11 +181,6 @@ public class ErsatzspielerCheck {
 						spieler.getMannschaftseinsatz()[spTnr][1] = einsatz.getMannschaft();
 					}
 				}
-				if (spTnr < 6) {
-					spieler.getMannschaftseinsatz()[spTnr][2] = spieler.getStammMannschaftVR();
-				} else {
-					spieler.getMannschaftseinsatz()[spTnr][2] = spieler.getStammMannschaftRR();
-				}
 			}
 		}
 		spTEinsaetze.add(einsatz);
@@ -222,6 +217,7 @@ public class ErsatzspielerCheck {
 				}
 				int m = spieler.getMannschaftseinsatz()[spt][0];
 				int m2 = spieler.getMannschaftseinsatz()[spt][1];
+				spieler.getMannschaftseinsatz()[spt][2] = maxMannschaft;
 				if (m2 > 0) {
 					if ((m2 < m && m <= maxMannschaft) || (m2 > m && m2 > maxMannschaft)) {
 						m = m2;
@@ -247,7 +243,7 @@ public class ErsatzspielerCheck {
 							maxMannschaft = i;
 							spieler.getMannschaftseinsatz()[spt][2] = maxMannschaft;
 							festgespielt.add(spieler);
-							if (spt > 4) {
+							if (spt >= 5) {
 								if (spieler.getVereinRR() != null) {
 									spieler.getVereinRR().getFestgespielt().add(spieler);
 								}
